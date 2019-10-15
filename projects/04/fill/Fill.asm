@@ -19,9 +19,13 @@
 (LOOP)
     @KBD
     D=M
+    @color
+    M=-1
     @PAINT
     D;JNE       // if read something, jump to PAINT
-    @CLEAR
+    @color
+    M=0
+    @PAINT
     0;JMP       // otherwise, jump to CLEAR
     @LOOP
     0;JMP       // loops
@@ -37,29 +41,13 @@
     @i          // SCREEN[i] = -1
     D=M
     @SCREEN
-    A=A+D
-    M=-1
-    @i          // i++
-    M=M+1
-
-    @LOOP       // return
-    0;JMP
-
-(CLEAR)
-    @SCREEN     // SCREEN[0] = 0
-    M=0
-    @i          // if offset == 0, skip clear (whole screen is cleared)
-    D=M
-    @LOOP
-    D;JEQ
-
-    @i          // SCREEN[i] = 0
+    A=D+A
+    @color
     D=M
     @SCREEN
-    A=A+D
-    M=0
-    @i          // i--
-    M=M-1
+    M=D
+    @i          // i++
+    M=M+1
 
     @LOOP       // return
     0;JMP
