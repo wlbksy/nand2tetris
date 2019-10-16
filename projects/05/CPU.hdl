@@ -40,35 +40,32 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
-    Not(in=instruction[15], out=aInstructionP);
-    And(a=instruction[15], b=instruction[3], out=writeM);
-
-    Mux16(a=ALUOut, b=instruction, sel=aInstructionP, out=newA);
-    And(a=instruction[5], b=instruction[15], out=storeAP1);
-    Or(a=storeAP1, b=aInstructionP, out=storeAP);
+    Not(in=instruction[15], out=aInstruction);
+    Mux16(a=ALUOut, b=instruction, sel=aInstruction, out=newA);
     ARegister(in=newA, out=storedA, out[0..14]=addressM, load=storeAP);
 
     Mux16(a=storedA, b=inM, sel=instruction[12], out=ALUInAM);
-
+    DRegister(in=ALUOut, out=storedD, load=storeDP);
     ALU(x=storedD, y=ALUInAM, out=ALUOut, out=outM, zx=instruction[11],
         nx=instruction[10], zy=instruction[9], ny=instruction[8],
         f=instruction[7], no=instruction[6], ng=ng, zr=zr);
 
-    And(a=instruction[4], b=instruction[15], out=storeDP);
-    DRegister(in=ALUOut, out=storedD, load=storeDP);
+    PC(in=storedA, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
+
+    And(a=instruction[15], b=instruction[3], out=writeM);
+    And(a=instruction[15], b=instruction[4], out=storeDP);
+    And(a=instruction[15], b=instruction[5], out=storeAP1);
+    Or(a=storeAP1, b=aInstruction, out=storeAP);
 
     Not(in=zr, out=zrinv);
     Not(in=ng, out=nginv);
+    And(a=zrinv, b=nginv, out=gt);
 
-    And(a=zrinv, b=nginv, out=JGT1);
-    And(a=instruction[0], b=JGT1, out=JGT);
+    And(a=instruction[0], b=gt, out=JGT);
+    And(a=instruction[1], b=zr, out=JEQ);
+    And(a=instruction[2], b=ng, out=JLT);
 
-    And(a=zr, b=instruction[1], out=JEQ);
-    Or(a=JEQ, b=JGT, out=Load1);
-
-    And(a=ng, b=instruction[2], out=JLT);
-    Or(a=JLT, b=Load1, out=Load2);
-    And(a=Load2, b=instruction[15], out=Load3);
-
-    PC(in=storedA, load=Load3, inc=true, reset=reset, out[0..14]=pc);
+    Or(a=JEQ, b=JGT, out=JGE);
+    Or(a=JLT, b=JGE, out=JMP);
+    And(a=instruction[15], b=JMP, out=loadPC);
 }
