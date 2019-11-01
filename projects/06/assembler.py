@@ -7,8 +7,8 @@ class Assembler:
 
         for i in range(16):
             self.symbols['R{}'.format(i)] = i
-        self.symbols['SCREEN'] = 16384
-        self.symbols['KBD'] = 24576
+        self.symbols['SCREEN'] = 0x4000
+        self.symbols['KBD'] = 0x6000
         self.symbols['SP'] = 0
         self.symbols['LCL'] = 1
         self.symbols['ARG'] = 2
@@ -19,9 +19,7 @@ class Assembler:
         self.result = []
 
     def translate_a_instruction(self, v):
-        decimal = int(v)
-        real_str =  bin(decimal)[2:]
-        return '0' * (16 - len(real_str)) + real_str
+        return bin(int(v))[2:].zfill(16)
 
     def translate_a_part(self, comp):
         if 'M' in comp:
@@ -30,12 +28,12 @@ class Assembler:
 
     def translate_dest(self, dest):
         result = ['0', '0', '0']
-        if 'M' in dest:
-            result[-1] = '1'
-        if 'D' in dest:
-            result[-2] = '1'
         if 'A' in dest:
-            result[-3] = '1'
+            result[0] = '1'
+        if 'D' in dest:
+            result[1] = '1'
+        if 'M' in dest:
+            result[2] = '1'
         return ''.join(result)
 
     def translate_comp(self, comp):
@@ -106,7 +104,7 @@ class Assembler:
 
         dest_part = ''
         if len(dest_comp_split) == 2:
-            dest_part = dest_comp_split[-2].strip()
+            dest_part = dest_comp_split[0].strip()
         dest = self.translate_dest(dest_part)
 
         jump_part = ''
@@ -140,7 +138,7 @@ class Assembler:
         result = []
         idx = 0
         for line in self.result:
-            if '(' in line:
+            if line[0] == '(':
                 self.symbols[line[1:-1]] = idx
                 continue
             idx += 1
@@ -151,18 +149,19 @@ class Assembler:
         n = 16
         result = []
         for line in self.result:
-            if '@' in line:
+            if line[0] == '@':
                 v = line[1:]
-                try:
-                    int(v)
-                    result.append(self.translate_a_instruction(v))
-                except:
-                    if v in self.symbols:
-                        result.append(self.translate_a_instruction(self.symbols[v]))
-                    else:
-                        result.append(self.translate_a_instruction(n))
-                        self.symbols[v] = n
-                        n += 1
+                raw_a_instruction = None
+                if v.isdigit():
+                    raw_a_instruction = v
+                elif v in self.symbols:
+                    raw_a_instruction = self.symbols[v]
+                else:
+                    raw_a_instruction = n
+                    self.symbols[v] = n
+                    n += 1
+                
+                result.append(self.translate_a_instruction(raw_a_instruction))
             else:
                 result.append(self.translate_c_instruction(line))
         self.result = result
