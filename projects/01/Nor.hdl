@@ -1,0 +1,22 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Nor.hdl
+
+/**
+ * Nor gate:
+ * out = 1 if (a == 0 or b == 0)
+ *       0 otherwise
+ */
+
+CHIP Nor {
+    IN a, b;
+    OUT out;
+
+    PARTS:
+    // Nand formular
+    Nand(a=a, b=a, out=nota);
+    Nand(a=b, b=b, out=notb);
+    Nand(a=nota, b=notb, out=c);
+    Nand(a=c, b=c, out=out);
+}

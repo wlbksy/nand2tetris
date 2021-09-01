@@ -13,41 +13,55 @@
 
 // Put your code here.
 
-    @i          // i: screen offset
-    M=0
-
 (LOOP)
+    // addr = @SCREEN
+    @SCREEN
+    D=A
+    @addr
+    M=D
+
+    // get KBD value
     @KBD
     D=M
+
+    // set color to black
     @color
     M=-1
+
+    // if a key is pressed, paint
     @PAINT
-    D;JNE       // if read something, jump to PAINT
+    D;JGT
+
+    // set color to white
     @color
     M=0
-    @PAINT
-    0;JMP       // otherwise, jump to CLEAR
-    @LOOP
-    0;JMP       // loops
 
 (PAINT)
-    @i          // if offset >= 8192, skip PAINT (whole screen is already painted)
-    D=M
-    @8192
-    D=D-A
-    @LOOP
-    D;JGE
-
-    @i          // SCREEN[i] = -1
-    D=M
-    @SCREEN
-    A=D+A
+    // get color
     @color
     D=M
-    @SCREEN
-    M=D
-    @i          // i++
-    M=M+1
 
-    @LOOP       // return
+    // select addr pointer
+    @addr
+    A=M
+
+    // paint
+    M=D
+
+    // increase addr pointer
+    @addr
+    M=M+1
+    D=M
+
+    // check if paint is done
+    // the next address after @SCREEN is @KBD
+    @KBD
+    D=D-A
+
+    // paint if is not done
+    @PAINT
+    D;JLT
+
+    // return to loop
+    @LOOP
     0;JMP

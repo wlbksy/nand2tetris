@@ -14,8 +14,15 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    // Put your code here:
-    Not(in=sel, out=nots);
-    And(a=in, b=nots, out=a);
-    And(a=in, b=sel, out=b);
+    // Nand formular
+    Nand(a=in, b=sel, out=c);
+    Nand(a=in, b=c, out=d);
+    Not(in=d, out=a);
+    Not(in=c, out=b);
+
+    // Nor formular
+    // Not(in=in, out=notin);
+    // Not(in=sel, out=nots);
+    // Nor(a=notin, b=sel, out=a);
+    // Nor(a=notin, b=nots, out=b);
 }

@@ -14,8 +14,12 @@ CHIP Or {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    // Nand formular
     Not(in=a, out=nota);
     Not(in=b, out=notb);
     Nand(a=nota, b=notb, out=out);
+
+    // Nor formular
+    // Nor(a=a, b=b, out=notor);
+    // Not(in=notor, out=out);
 }

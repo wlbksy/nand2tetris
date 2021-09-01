@@ -14,9 +14,15 @@ CHIP Mux {
     OUT out;
 
     PARTS:
-    // Put your code here:
-    Nand(a=sel, b=sel, out=nots);
+    // Nand formular
+    Not(in=sel, out=nots);
     Nand(a=a, b=nots, out=c);
     Nand(a=b, b=sel, out=d);
     Nand(a=c, b=d, out=out);
+
+    // Nor formular
+    // Not(in=sel, out=nots);
+    // Nor(a=a, b=sel, out=c);
+    // Nor(a=b, b=nots, out=d);
+    // Nor(a=c, b=d, out=out);
 }

@@ -13,6 +13,9 @@ CHIP Not {
     OUT out;
 
     PARTS:
-    // Put your code here:
+    // Nand formular
     Nand(a=in, b=in, out=out);
+
+    // Nor formular
+    // Nor(a=in, b=in, out=out);
 }
