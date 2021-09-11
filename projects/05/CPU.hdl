@@ -40,26 +40,33 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
-    Not(in=instruction[15], out=aInstruction);
-    Mux16(a=ALUOut, b=instruction, sel=aInstruction, out=newA);
-    ARegister(in=newA, out=storedA, out[0..14]=addressM, load=storeAP);
+    Not(in=instruction[15], out=isAInstruction);
+    Mux16(a=ALUOut, b=instruction, sel=isAInstruction, out=inARegister);
 
-    Mux16(a=storedA, b=inM, sel=instruction[12], out=ALUInAM);
-    DRegister(in=ALUOut, out=storedD, load=storeDP);
-    ALU(x=storedD, y=ALUInAM, out=ALUOut, out=outM, zx=instruction[11],
-        nx=instruction[10], zy=instruction[9], ny=instruction[8],
-        f=instruction[7], no=instruction[6], ng=ng, zr=zr);
+    ARegister(in=inARegister, load=loadForARegister, out=outARegister, out[0..14]=addressM);
+    Mux16(a=outARegister, b=inM, sel=instruction[12], out=ALUInAM);
 
-    PC(in=storedA, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
+    DRegister(in=ALUOut, load=loadForDRegister, out=outDRegister);
 
+    ALU(x=outDRegister, y=ALUInAM, zx=instruction[11], nx=instruction[10],
+        zy=instruction[9], ny=instruction[8], f=instruction[7],
+        no=instruction[6], ng=ng, zr=zr, out=ALUOut, out=outM);
+
+    // is C instruction and M in dest is set
     And(a=instruction[15], b=instruction[3], out=writeM);
-    And(a=instruction[15], b=instruction[4], out=storeDP);
-    And(a=instruction[15], b=instruction[5], out=storeAP1);
-    Or(a=storeAP1, b=aInstruction, out=storeAP);
 
-    Not(in=zr, out=zrinv);
-    Not(in=ng, out=nginv);
-    And(a=zrinv, b=nginv, out=gt);
+    // is C instruction and D in dest is set
+    And(a=instruction[15], b=instruction[4], out=loadForDRegister);
+
+    // is C instruction and A in dest is set
+    And(a=instruction[15], b=instruction[5], out=ControlForStroreInA);
+
+    // is A instruction or ( C instructs to write in A )
+    Or(a=isAInstruction, b=ControlForStroreInA, out=loadForARegister);
+
+    // jump
+    Or(a=zr, b=ng, out=le);
+    Not(in=le, out=gt);
 
     And(a=instruction[0], b=gt, out=JGT);
     And(a=instruction[1], b=zr, out=JEQ);
@@ -67,5 +74,9 @@ CHIP CPU {
 
     Or(a=JEQ, b=JGT, out=JGE);
     Or(a=JLT, b=JGE, out=JMP);
+
+    // is C instruction and jump is set
     And(a=instruction[15], b=JMP, out=loadPC);
+
+    PC(in=outARegister, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
 }

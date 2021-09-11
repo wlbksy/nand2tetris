@@ -79,6 +79,56 @@ class Assembler:
         self.register_dict["A|D"] = "010101"
         self.register_dict["M|D"] = "010101"
 
+    def init_register_data2(self, comp):
+        self.control = "000000"
+
+        zd = 1
+        if "D" in comp:
+            zd = 0
+
+        zma = 1
+        if "M" in comp or "A" in comp:
+            zma = 0
+
+        self.register_dict["0"] = "101010"
+        self.register_dict["1"] = "111111"
+        self.register_dict["-1"] = "111010"
+        self.register_dict["D"] = "001100"
+        self.register_dict["A"] = "110000"
+        self.register_dict["M"] = "110000"
+        self.register_dict["!D"] = "001101"
+        self.register_dict["!A"] = "110001"
+        self.register_dict["!M"] = "110001"
+        self.register_dict["-D"] = "001111"
+        self.register_dict["-A"] = "110011"
+        self.register_dict["-M"] = "110011"
+        self.register_dict["D+1"] = "011111"
+        self.register_dict["A+1"] = "110111"
+        self.register_dict["M+1"] = "110111"
+        self.register_dict["D-1"] = "001110"
+        self.register_dict["A-1"] = "110010"
+        self.register_dict["M-1"] = "110010"
+        self.register_dict["D+A"] = "000010"
+        self.register_dict["D+M"] = "000010"
+        self.register_dict["D-A"] = "010011"
+        self.register_dict["D-M"] = "010011"
+        self.register_dict["A-D"] = "000111"
+        self.register_dict["M-D"] = "000111"
+        self.register_dict["D&A"] = "000000"
+        self.register_dict["D&M"] = "000000"
+        self.register_dict["D|A"] = "010101"
+        self.register_dict["D|M"] = "010101"
+
+        self.register_dict["1+D"] = "011111"
+        self.register_dict["1+A"] = "110111"
+        self.register_dict["1+M"] = "110111"
+        self.register_dict["A+D"] = "000010"
+        self.register_dict["M+D"] = "000010"
+        self.register_dict["A&D"] = "000000"
+        self.register_dict["M&D"] = "000000"
+        self.register_dict["A|D"] = "010101"
+        self.register_dict["M|D"] = "010101"
+
     def translate_a_instruction(self, v):
         return bin(int(v))[2:].zfill(16)
 
